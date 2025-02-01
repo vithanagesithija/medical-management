@@ -21,37 +21,107 @@ public class DoctorScheduleManager {
     private JButton updateButton;
     private JButton removeButton;
     private JButton viewButton;
-    private JPanel mainPanel;
+    public JPanel mainPanel;
 
     public DoctorScheduleManager() {
         // Initialize components
-        idField = new JTextField();
-        nameField = new JTextField();
-        specializationField = new JTextField();
-        phoneField = new JTextField();
-        emailField = new JTextField();
+        idField = new JTextField(20);
+        nameField = new JTextField(20);
+        specializationField = new JTextField(20);
+        phoneField = new JTextField(20);
+        emailField = new JTextField(20);
         addButton = new JButton("Add Doctor");
         updateButton = new JButton("Update Doctor");
         removeButton = new JButton("Remove Doctor");
         viewButton = new JButton("View Doctor");
 
+        // Set colors for buttons
+        addButton.setBackground(new Color(50, 205, 50)); // Green
+        addButton.setForeground(Color.WHITE);
+        updateButton.setBackground(new Color(70, 130, 180)); // SteelBlue
+        updateButton.setForeground(Color.WHITE);
+        removeButton.setBackground(new Color(220, 20, 60)); // Crimson
+        removeButton.setForeground(Color.WHITE);
+        viewButton.setBackground(new Color(255, 165, 0)); // Orange
+        viewButton.setForeground(Color.WHITE);
+
+        // Set font for labels and fields to bold
+        Font boldFont = new Font("Arial", Font.BOLD, 14);
+        Font fieldFont = new Font("Arial", Font.BOLD, 12);
+
         // Create and set up the main panel
         mainPanel = new JPanel();
-        mainPanel.setLayout(new GridLayout(6, 2, 10, 10));
-        mainPanel.add(new JLabel("ID:"));
-        mainPanel.add(idField);
-        mainPanel.add(new JLabel("Name:"));
-        mainPanel.add(nameField);
-        mainPanel.add(new JLabel("Specialization:"));
-        mainPanel.add(specializationField);
-        mainPanel.add(new JLabel("Phone:"));
-        mainPanel.add(phoneField);
-        mainPanel.add(new JLabel("Email:"));
-        mainPanel.add(emailField);
-        mainPanel.add(addButton);
-        mainPanel.add(updateButton);
-        mainPanel.add(removeButton);
-        mainPanel.add(viewButton);
+        mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setBackground(new Color(245, 245, 245)); // Light gray background
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        // Add header label
+        JLabel headerLabel = new JLabel("Doctor Details");
+        headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        headerLabel.setForeground(new Color(0, 102, 204)); // Blue
+        gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        mainPanel.add(headerLabel, gbc);
+
+        // Add the input fields with labels
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        mainPanel.add(new JLabel("ID:"), gbc);
+        gbc.gridx = 1;
+        mainPanel.add(idField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        mainPanel.add(new JLabel("Name:"), gbc);
+        gbc.gridx = 1;
+        mainPanel.add(nameField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        mainPanel.add(new JLabel("Specialization:"), gbc);
+        gbc.gridx = 1;
+        mainPanel.add(specializationField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 4;
+        mainPanel.add(new JLabel("Phone:"), gbc);
+        gbc.gridx = 1;
+        mainPanel.add(phoneField, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 5;
+        mainPanel.add(new JLabel("Email:"), gbc);
+        gbc.gridx = 1;
+        mainPanel.add(emailField, gbc);
+
+        // Add buttons
+        gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        mainPanel.add(addButton, gbc);
+        gbc.gridy = 7;
+        mainPanel.add(updateButton, gbc);
+        gbc.gridy = 8;
+        mainPanel.add(removeButton, gbc);
+        gbc.gridy = 9;
+        mainPanel.add(viewButton, gbc);
+
+        // Set label font to bold
+        for (Component component : mainPanel.getComponents()) {
+            if (component instanceof JLabel) {
+                ((JLabel) component).setFont(boldFont);
+            }
+        }
+
+        // Set text field font to bold
+        idField.setFont(fieldFont);
+        nameField.setFont(fieldFont);
+        specializationField.setFont(fieldFont);
+        phoneField.setFont(fieldFont);
+        emailField.setFont(fieldFont);
 
         // Button Listeners
         addButton.addActionListener(new ActionListener() {
@@ -60,22 +130,28 @@ public class DoctorScheduleManager {
                 addDoctor();
             }
         });
+
         updateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateDoctor();
             }
         });
+
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 removeDoctor();
             }
         });
+
         viewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Leave empty as requested
+                // Navigate to DoctorView when viewButton is clicked
+                new DoctorView();  // Open DoctorView class
+                JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(viewButton);
+                currentFrame.dispose(); // Close DoctorScheduleManager
             }
         });
     }
