@@ -16,19 +16,19 @@ public class patientview extends JFrame {
 
     public patientview() {
         setTitle("Patient Details");
-        setSize(750, 450);
+        setSize(700, 500);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
 
         // Set overall background color
-        getContentPane().setBackground(new Color(240, 248, 255)); // Light blue background
+        getContentPane().setBackground(new Color(153, 153, 153)); // Gray background
 
         // Create and style the header label
         JLabel headerLabel = new JLabel("Patient Details", JLabel.CENTER);
-        headerLabel.setFont(new Font("Segoe UI", Font.BOLD, 30));
-        headerLabel.setForeground(new Color(0, 102, 204)); // Blue color
+        headerLabel.setFont(new Font("Segoe UI", Font.BOLD, 28));
+        headerLabel.setForeground(Color.WHITE); // Black text color
         headerLabel.setOpaque(true);
-        headerLabel.setBackground(new Color(255, 255, 255)); // White background for the header
+        headerLabel.setBackground(new Color(0,0,0)); // Slightly lighter gray
         headerLabel.setBorder(BorderFactory.createEmptyBorder(15, 0, 15, 0));
         add(headerLabel, BorderLayout.NORTH);
 
@@ -37,8 +37,8 @@ public class patientview extends JFrame {
         DefaultTableModel tableModel = new DefaultTableModel(columnNames, 0);
         patientTable = new JTable(tableModel);
         patientTable.setRowHeight(30);
-        patientTable.setFont(new Font("Arial", Font.PLAIN, 16));
-        patientTable.setSelectionBackground(new Color(0, 102, 204)); // Blue selection color
+        patientTable.setFont(new Font("Arial", Font.PLAIN, 14));
+        patientTable.setSelectionBackground(new Color(0, 0, 0)); // Black selection color
         patientTable.setSelectionForeground(Color.WHITE);
 
         // Add alternating row colors for better readability
@@ -46,10 +46,8 @@ public class patientview extends JFrame {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
-                if (row % 2 == 0) {
-                    c.setBackground(new Color(240, 248, 255)); // Light blue for even rows
-                } else {
-                    c.setBackground(Color.WHITE); // White for odd rows
+                if (!isSelected) {
+                    c.setBackground(row % 2 == 0 ? new Color(180, 180, 180) : Color.WHITE);
                 }
                 return c;
             }
@@ -60,13 +58,14 @@ public class patientview extends JFrame {
 
         // Back button setup
         backButton = new JButton("Back");
-        backButton.setBackground(new Color(70, 130, 180)); // SteelBlue background
+        backButton.setBackground(new Color(0,0,0)); // Light gray button background
         backButton.setForeground(Color.WHITE);
         backButton.setFont(new Font("Arial", Font.BOLD, 14));
+        backButton.setPreferredSize(new Dimension(100, 40)); // Set button size
 
-        // Button Panel
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setBackground(new Color(240, 248, 255)); // Light blue background
+        // Button Panel (Horizontally aligned)
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
+        buttonPanel.setBackground(new Color(153, 153, 153)); // Match background
         buttonPanel.add(backButton);
 
         add(scrollPane, BorderLayout.CENTER);

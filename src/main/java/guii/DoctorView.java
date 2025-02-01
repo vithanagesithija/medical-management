@@ -16,12 +16,16 @@ public class DoctorView {
     private JTable doctorTable;
     private JScrollPane scrollPane;
     private JButton backButton;
+    private JPanel buttonPanel;
 
     public DoctorView() {
         frame = new JFrame("Doctor Details");
         frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
         frame.setSize(700, 500);
         frame.setLocationRelativeTo(null); // Center the window
+
+        // Set the background color
+        frame.getContentPane().setBackground(new Color(153, 153, 153));
 
         // Create the table with column names
         String[] columnNames = {"ID", "Name", "Specialization", "Phone", "Email"};
@@ -31,17 +35,24 @@ public class DoctorView {
         scrollPane = new JScrollPane(doctorTable);
         frame.add(scrollPane, BorderLayout.CENTER);
 
+        // Create a panel for buttons to align them horizontally
+        buttonPanel = new JPanel();
+        buttonPanel.setBackground(new Color(153, 153, 153)); // Match background color
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER));
+
         // Create a Back button to navigate to DoctorScheduleManager
         backButton = new JButton("Back");
         backButton.setFont(new Font("Arial", Font.BOLD, 14));
-        backButton.setBackground(new Color(70, 130, 180)); // SteelBlue
-        backButton.setForeground(Color.WHITE);
-        frame.add(backButton, BorderLayout.SOUTH);
+        backButton.setBackground(new Color(0, 0, 0)); // Black background
+        backButton.setForeground(Color.WHITE); // White text
+        buttonPanel.add(backButton);
+
+        frame.add(buttonPanel, BorderLayout.SOUTH);
 
         // Add header label for "Doctor Details"
         JLabel headerLabel = new JLabel("Doctor Details");
         headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        headerLabel.setForeground(new Color(0, 102, 204)); // Blue
+        headerLabel.setForeground(new Color(0, 0, 0)); // Blue color
         frame.add(headerLabel, BorderLayout.NORTH);
 
         // Load doctors data from the database
@@ -89,5 +100,8 @@ public class DoctorView {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new DoctorView());  // Create and display the DoctorView frame
+    }
+
+    public void setVisible(boolean b) {
     }
 }

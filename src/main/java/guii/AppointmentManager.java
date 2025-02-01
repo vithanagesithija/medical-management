@@ -1,71 +1,90 @@
 package guii;
 
-import code.*;
-
+import code.DatabaseConnection;
+import code.Appointment;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class AppointmentManager extends JFrame {
-    private JTextField patientIdField, doctorIdField, dateField, timeField;
-    private JButton addButton, viewButton;
+    private JTextField appointmentIdField;
+    private JTextField patientIdField;
+    private JTextField doctorIdField;
+    private JTextField appointmentDateField;
+    private JTextField appointmentTimeField;
+    private JButton addButton;
+    private JButton updateButton;
+    private JButton removeButton;
+    private JButton viewButton;
+    public JPanel mainPanel;
 
     public AppointmentManager() {
+        // Set basic JFrame properties
         setTitle("Appointment Manager");
-        setSize(600, 450);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-        getContentPane().setBackground(new Color(240, 248, 255)); // Light blue background
+        setSize(700, 500);  // Updated size
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null); // Center the window
+
+        // Create mainPanel and build the UI
+        mainPanel = new JPanel();
+        mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setBackground(new Color(153, 153, 153));  // Set background color
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+
+        // Initialize components with increased width
+        appointmentIdField = new JTextField(30);
+        patientIdField = new JTextField(30);
+        doctorIdField = new JTextField(30);
+        appointmentDateField = new JTextField(30);
+        appointmentTimeField = new JTextField(30);
+        addButton = new JButton("Add Appointment");
+        updateButton = new JButton("Update Appointment");
+        removeButton = new JButton("Remove Appointment");
+        viewButton = new JButton("View Appointments");
+
+        // Set button colors (0,0,0 color)
+        addButton.setBackground(new Color(0, 0, 0));
+        addButton.setForeground(Color.WHITE);
+        updateButton.setBackground(new Color(0, 0, 0));
+        updateButton.setForeground(Color.WHITE);
+        removeButton.setBackground(new Color(0, 0, 0));
+        removeButton.setForeground(Color.WHITE);
+        viewButton.setBackground(new Color(0, 0, 0));
+        viewButton.setForeground(Color.WHITE);
 
         // Header Label
-        JLabel headerLabel = new JLabel("Manage Appointments", JLabel.CENTER);
-        headerLabel.setFont(new Font("Serif", Font.BOLD, 25));
-        headerLabel.setForeground(Color.WHITE);
-        headerLabel.setOpaque(true);
-        headerLabel.setBackground(new Color(0, 102, 204)); // Blue header background
-        headerLabel.setBorder(BorderFactory.createEmptyBorder(10, 0, 10, 0));
-        add(headerLabel, BorderLayout.NORTH);
+        JLabel headerLabel = new JLabel("Appointment Details", JLabel.CENTER);
+        headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        headerLabel.setForeground(new Color(0, 0, 0));
+        gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        mainPanel.add(headerLabel, gbc);
 
-        // Input Fields Panel
-        JPanel inputPanel = new JPanel(new GridLayout(5, 2, 10, 10));
-        inputPanel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
-        inputPanel.setBackground(new Color(240, 248, 255));
+        // Add Input Fields
+        addInputField("Appointment ID:", appointmentIdField, 1, gbc);
+        addInputField("Patient ID:", patientIdField, 2, gbc);
+        addInputField("Doctor ID:", doctorIdField, 3, gbc);
+        addInputField("Appointment Date:(YYYY-MM-DD)", appointmentDateField, 4, gbc);
+        addInputField("Appointment Time:(HH:MM)", appointmentTimeField, 5, gbc);
 
-        inputPanel.add(createStyledLabel("Patient ID:"));
-        patientIdField = createStyledTextField();
-        inputPanel.add(patientIdField);
-
-        inputPanel.add(createStyledLabel("Doctor ID:"));
-        doctorIdField = createStyledTextField();
-        inputPanel.add(doctorIdField);
-
-        inputPanel.add(createStyledLabel("Date (YYYY-MM-DD):"));
-        dateField = createStyledTextField();
-        inputPanel.add(dateField);
-
-        inputPanel.add(createStyledLabel("Time (HH:MM):"));
-        timeField = createStyledTextField();
-        inputPanel.add(timeField);
-
-        add(inputPanel, BorderLayout.CENTER);
-
-        // Button Panel
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 15));
-        buttonPanel.setBackground(new Color(240, 248, 255));
-
-        addButton = createStyledButton("Add Appointment", new Color(0, 128, 255));
-        viewButton = createStyledButton("View Appointments", new Color(30, 144, 255));
-
+        // Add Buttons
+        gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 6;
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setBackground(new Color(153, 153, 153)); // Background color for button panel
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER)); // Align buttons horizontally
         buttonPanel.add(addButton);
+        buttonPanel.add(updateButton);
+        buttonPanel.add(removeButton);
         buttonPanel.add(viewButton);
-        add(buttonPanel, BorderLayout.SOUTH);
+        mainPanel.add(buttonPanel, gbc);
 
-        // Add Button - Store Data in MySQL
+        // Button Listeners
         addButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -73,99 +92,155 @@ public class AppointmentManager extends JFrame {
             }
         });
 
-        // View Button - Show Appointments
+        updateButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                updateAppointment();
+            }
+        });
+
+        removeButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                removeAppointment();
+            }
+        });
+
         viewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                viewAppointments();
+                // Navigate to ViewAppointment window
+                new ViewAppointment().setVisible(true);
+                dispose(); // Close AppointmentManager window
             }
         });
+
+        add(mainPanel);
     }
 
-    // Method to Store Data in Database
+    private void addInputField(String label, JTextField field, int row, GridBagConstraints gbc) {
+        gbc.gridwidth = 1;
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        mainPanel.add(new JLabel(label), gbc);
+        gbc.gridx = 1;
+        mainPanel.add(field, gbc);
+    }
+
     private void addAppointment() {
+        String appointmentId = appointmentIdField.getText();
         String patientId = patientIdField.getText();
         String doctorId = doctorIdField.getText();
-        String date = dateField.getText();
-        String time = timeField.getText();
+        String date = appointmentDateField.getText();
+        String time = appointmentTimeField.getText();
 
-        if (patientId.isEmpty() || doctorId.isEmpty() || date.isEmpty() || time.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Please fill all fields!", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            String sql = "INSERT INTO appointments (patient_id, doctor_id, appointment_date, appointment_time) VALUES (?, ?, ?, ?)";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            stmt.setString(1, patientId);
-            stmt.setString(2, doctorId);
-            stmt.setString(3, date);
-            stmt.setString(4, time);
-
-            int rowsInserted = stmt.executeUpdate();
-            if (rowsInserted > 0) {
-                JOptionPane.showMessageDialog(this, "Appointment Added Successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
-                clearFields();
-            }
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        if (doesDoctorExist(doctorId) && doesPatientExist(patientId)) {
+            Appointment appointment = new Appointment(appointmentId, patientId, doctorId, date, time);
+            insertAppointmentIntoDatabase(appointment);
+            clearForm();
+        } else {
+            JOptionPane.showMessageDialog(this, "Doctor or Patient does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    // Method to View Appointments
-    private void viewAppointments() {
-        try (Connection conn = DatabaseConnection.getConnection()) {
-            String sql = "SELECT * FROM appointments";
-            PreparedStatement stmt = conn.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery();
-
-            StringBuilder appointments = new StringBuilder("Appointments:\n");
-            while (rs.next()) {
-                appointments.append("ID: ").append(rs.getInt("appointment_id"))
-                        .append(" | Patient: ").append(rs.getString("patient_id"))
-                        .append(" | Doctor: ").append(rs.getString("doctor_id"))
-                        .append(" | Date: ").append(rs.getString("appointment_date"))
-                        .append(" | Time: ").append(rs.getString("appointment_time"))
-                        .append("\n");
+    private boolean doesDoctorExist(String doctorId) {
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            String query = "SELECT * FROM doctors WHERE id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, doctorId);
+                ResultSet resultSet = statement.executeQuery();
+                return resultSet.next();
             }
-
-            AppointmentView appointmentView = new AppointmentView();
-            appointmentView.setAppointments(appointments.toString());
-            appointmentView.setVisible(true);
-
-        } catch (SQLException ex) {
-            JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error checking doctor: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            return false;
         }
     }
 
-    private void clearFields() {
+    private boolean doesPatientExist(String patientId) {
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            String query = "SELECT * FROM patients WHERE id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, patientId);
+                ResultSet resultSet = statement.executeQuery();
+                return resultSet.next();
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error checking patient: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            return false;
+        }
+    }
+
+    private void insertAppointmentIntoDatabase(Appointment appointment) {
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            String query = "INSERT INTO appointments (appointment_id, patient_id, doctor_id, appointment_date, appointment_time) VALUES (?, ?, ?, ?, ?)";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, appointment.getAppointmentId());
+                statement.setString(2, appointment.getPatientId());
+                statement.setString(3, appointment.getDoctorId());
+                statement.setString(4, appointment.getAppointmentDate());
+                statement.setString(5, appointment.getAppointmentTime());
+                statement.executeUpdate();
+                JOptionPane.showMessageDialog(this, "Appointment added successfully.");
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error inserting appointment: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void updateAppointment() {
+        String appointmentId = appointmentIdField.getText();
+        String patientId = patientIdField.getText();
+        String doctorId = doctorIdField.getText();
+        String date = appointmentDateField.getText();
+        String time = appointmentTimeField.getText();
+
+        if (doesDoctorExist(doctorId) && doesPatientExist(patientId)) {
+            try (Connection connection = DatabaseConnection.getConnection()) {
+                String query = "UPDATE appointments SET patient_id = ?, doctor_id = ?, appointment_date = ?, appointment_time = ? WHERE appointment_id = ?";
+                try (PreparedStatement statement = connection.prepareStatement(query)) {
+                    statement.setString(1, patientId);
+                    statement.setString(2, doctorId);
+                    statement.setString(3, date);
+                    statement.setString(4, time);
+                    statement.setString(5, appointmentId);
+                    statement.executeUpdate();
+                    JOptionPane.showMessageDialog(this, "Appointment updated successfully.");
+                    clearForm();
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error updating appointment: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Doctor or Patient does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void removeAppointment() {
+        String appointmentId = appointmentIdField.getText();
+        if (!appointmentId.isEmpty()) {
+            try (Connection connection = DatabaseConnection.getConnection()) {
+                String query = "DELETE FROM appointments WHERE appointment_id = ?";
+                try (PreparedStatement statement = connection.prepareStatement(query)) {
+                    statement.setString(1, appointmentId);
+                    statement.executeUpdate();
+                    JOptionPane.showMessageDialog(this, "Appointment removed successfully.");
+                    clearForm();
+                }
+            } catch (SQLException e) {
+                JOptionPane.showMessageDialog(this, "Error removing appointment: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Appointment ID is required for removal.", "Input Error", JOptionPane.WARNING_MESSAGE);
+        }
+    }
+
+    private void clearForm() {
+        appointmentIdField.setText("");
         patientIdField.setText("");
         doctorIdField.setText("");
-        dateField.setText("");
-        timeField.setText("");
-    }
-
-    private JLabel createStyledLabel(String text) {
-        JLabel label = new JLabel(text);
-        label.setFont(new Font("Arial", Font.BOLD, 14));
-        return label;
-    }
-
-    private JTextField createStyledTextField() {
-        JTextField textField = new JTextField();
-        textField.setFont(new Font("Arial", Font.PLAIN, 14));
-        textField.setBorder(BorderFactory.createLineBorder(new Color(0, 102, 204), 2));
-        return textField;
-    }
-
-    private JButton createStyledButton(String text, Color color) {
-        JButton button = new JButton(text);
-        button.setFont(new Font("Arial", Font.BOLD, 14));
-        button.setBackground(color);
-        button.setForeground(Color.WHITE);
-        button.setFocusPainted(false);
-        button.setBorder(BorderFactory.createEmptyBorder(5, 15, 5, 15));
-        return button;
+        appointmentDateField.setText("");
+        appointmentTimeField.setText("");
     }
 
     public static void main(String[] args) {

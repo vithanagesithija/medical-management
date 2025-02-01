@@ -2,16 +2,13 @@ package guii;
 
 import code.DatabaseConnection;
 import code.Doctor;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
-public class DoctorScheduleManager {
+public class DoctorScheduleManager extends JFrame {
     private JTextField idField;
     private JTextField nameField;
     private JTextField specializationField;
@@ -24,6 +21,11 @@ public class DoctorScheduleManager {
     public JPanel mainPanel;
 
     public DoctorScheduleManager() {
+        setTitle("Doctor Schedule Manager");
+        setSize(700, 500);  // Changed the size to 700x500
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLocationRelativeTo(null);
+
         // Initialize components
         idField = new JTextField(20);
         nameField = new JTextField(20);
@@ -36,36 +38,36 @@ public class DoctorScheduleManager {
         viewButton = new JButton("View Doctor");
 
         // Set colors for buttons
-        addButton.setBackground(new Color(50, 205, 50)); // Green
+        addButton.setBackground(new Color(0, 0, 0));
         addButton.setForeground(Color.WHITE);
-        updateButton.setBackground(new Color(70, 130, 180)); // SteelBlue
+        updateButton.setBackground(new Color(0, 0, 0));
         updateButton.setForeground(Color.WHITE);
-        removeButton.setBackground(new Color(220, 20, 60)); // Crimson
+        removeButton.setBackground(new Color(0, 0, 0));
         removeButton.setForeground(Color.WHITE);
-        viewButton.setBackground(new Color(255, 165, 0)); // Orange
+        viewButton.setBackground(new Color(0, 0, 0));
         viewButton.setForeground(Color.WHITE);
 
-        // Set font for labels and fields to bold
+        // Set fonts for labels and fields
         Font boldFont = new Font("Arial", Font.BOLD, 14);
         Font fieldFont = new Font("Arial", Font.BOLD, 12);
 
-        // Create and set up the main panel
+        // Create main panel
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridBagLayout());
-        mainPanel.setBackground(new Color(245, 245, 245)); // Light gray background
+        mainPanel.setBackground(new Color(153, 153, 153));  // Set background color
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
 
-        // Add header label
+        // Header label
         JLabel headerLabel = new JLabel("Doctor Details");
         headerLabel.setFont(new Font("Arial", Font.BOLD, 24));
-        headerLabel.setForeground(new Color(0, 102, 204)); // Blue
+        headerLabel.setForeground(new Color(0, 0, 0));
         gbc.gridwidth = 2;
         gbc.gridx = 0;
         gbc.gridy = 0;
         mainPanel.add(headerLabel, gbc);
 
-        // Add the input fields with labels
+        // Input fields
         gbc.gridwidth = 1;
         gbc.gridx = 0;
         gbc.gridy = 1;
@@ -97,26 +99,27 @@ public class DoctorScheduleManager {
         gbc.gridx = 1;
         mainPanel.add(emailField, gbc);
 
-        // Add buttons
+        // Buttons panel for horizontal alignment
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.CENTER, 10, 10));
+        buttonPanel.setBackground(new Color(153, 153, 153));  // Background color for the button panel
+        buttonPanel.add(addButton);
+        buttonPanel.add(updateButton);
+        buttonPanel.add(removeButton);
+        buttonPanel.add(viewButton);
+
+        // Add button panel to the main panel
         gbc.gridwidth = 2;
         gbc.gridx = 0;
         gbc.gridy = 6;
-        mainPanel.add(addButton, gbc);
-        gbc.gridy = 7;
-        mainPanel.add(updateButton, gbc);
-        gbc.gridy = 8;
-        mainPanel.add(removeButton, gbc);
-        gbc.gridy = 9;
-        mainPanel.add(viewButton, gbc);
+        mainPanel.add(buttonPanel, gbc);
 
-        // Set label font to bold
-        for (Component component : mainPanel.getComponents()) {
-            if (component instanceof JLabel) {
-                ((JLabel) component).setFont(boldFont);
+        // Set fonts
+        for (Component comp : mainPanel.getComponents()) {
+            if (comp instanceof JLabel) {
+                ((JLabel) comp).setFont(boldFont);
             }
         }
-
-        // Set text field font to bold
         idField.setFont(fieldFont);
         nameField.setFont(fieldFont);
         specializationField.setFont(fieldFont);
@@ -130,30 +133,27 @@ public class DoctorScheduleManager {
                 addDoctor();
             }
         });
-
         updateButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 updateDoctor();
             }
         });
-
         removeButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 removeDoctor();
             }
         });
-
         viewButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // Navigate to DoctorView when viewButton is clicked
-                new DoctorView();  // Open DoctorView class
-                JFrame currentFrame = (JFrame) SwingUtilities.getWindowAncestor(viewButton);
-                currentFrame.dispose(); // Close DoctorScheduleManager
+                new DoctorView().setVisible(true);
+                dispose();
             }
         });
+
+        add(mainPanel);
     }
 
     private void addDoctor() {
@@ -168,7 +168,7 @@ public class DoctorScheduleManager {
             insertDoctorIntoDatabase(doctor);
             clearForm();
         } else {
-            JOptionPane.showMessageDialog(null, "All fields are required.", "Input Error", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "All fields are required.", "Input Error", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -184,13 +184,12 @@ public class DoctorScheduleManager {
                 statement.executeUpdate();
             }
         } catch (SQLException e) {
-            JOptionPane.showMessageDialog(null, "Error inserting doctor into database: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+            JOptionPane.showMessageDialog(this, "Error inserting doctor: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private void updateDoctor() {
         String id = idField.getText();
-
         if (!id.isEmpty()) {
             try (Connection connection = DatabaseConnection.getConnection()) {
                 String query = "UPDATE doctors SET name = ?, specialization = ?, phone = ?, email = ? WHERE id = ?";
@@ -204,16 +203,15 @@ public class DoctorScheduleManager {
                     clearForm();
                 }
             } catch (SQLException e) {
-                JOptionPane.showMessageDialog(null, "Error updating doctor in database: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error updating doctor: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         } else {
-            JOptionPane.showMessageDialog(null, "ID field is required for updating.", "Input Error", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "ID is required for updating.", "Input Error", JOptionPane.WARNING_MESSAGE);
         }
     }
 
     private void removeDoctor() {
         String id = idField.getText();
-
         if (!id.isEmpty()) {
             try (Connection connection = DatabaseConnection.getConnection()) {
                 String query = "DELETE FROM doctors WHERE id = ?";
@@ -223,10 +221,10 @@ public class DoctorScheduleManager {
                     clearForm();
                 }
             } catch (SQLException e) {
-                JOptionPane.showMessageDialog(null, "Error removing doctor from database: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error removing doctor: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
             }
         } else {
-            JOptionPane.showMessageDialog(null, "ID field is required for removal.", "Input Error", JOptionPane.WARNING_MESSAGE);
+            JOptionPane.showMessageDialog(this, "ID is required for removal.", "Input Error", JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -239,10 +237,6 @@ public class DoctorScheduleManager {
     }
 
     public static void main(String[] args) {
-        JFrame frame = new JFrame("Doctor Schedule Manager");
-        frame.setContentPane(new DoctorScheduleManager().mainPanel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setVisible(true);
+        SwingUtilities.invokeLater(() -> new DoctorScheduleManager().setVisible(true));
     }
 }

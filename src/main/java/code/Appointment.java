@@ -1,37 +1,40 @@
 package code;
 
 public class Appointment {
-    private String appointmentID;
-    private String patientID;
-    private String doctorID;
-    private String date;
-    private String time;
+    private String appointmentId;
+    private String patientId;
+    private String doctorId;
+    private String appointmentDate;
+    private String appointmentTime;
 
-    public Appointment(String appointmentID, String patientID, String doctorID, String date, String time) {
-        this.appointmentID = appointmentID;
-        this.patientID = patientID;
-        this.doctorID = doctorID;
-        this.date = date;
-        this.time = time;
+    // Constructor
+    public Appointment(String appointmentId, String patientId, String doctorId, String appointmentDate, String appointmentTime) {
+        this.appointmentId = appointmentId;
+        this.patientId = patientId;
+        this.doctorId = doctorId;
+        this.appointmentDate = appointmentDate;
+        this.appointmentTime = appointmentTime;
     }
 
-    public String getAppointmentID() {
-        return appointmentID;
+    // Getter for appointmentId
+    public String getAppointmentId() {
+        return appointmentId;
     }
 
-    public String getPatientID() {
-        return patientID;
+    // Other getters and setters
+    public String getPatientId() {
+        return patientId;
     }
 
-    public String getDoctorID() {
-        return doctorID;
+    public String getDoctorId() {
+        return doctorId;
     }
 
-    public String getDate() {
-        return date;
+    public String getAppointmentDate() {
+        return appointmentDate;
     }
 
-    public String getTime() {
-        return time;
+    public String getAppointmentTime() {
+        return appointmentTime;
     }
 }
