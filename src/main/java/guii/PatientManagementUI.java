@@ -1,56 +1,72 @@
 package gui;
 
+import code.Patient;
+import code.PatientDAO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-
-import code.*;
+import java.util.List;
+import javax.swing.table.DefaultTableModel;
 
 
 public class PatientManagementUI extends JFrame {
     private JTextField idField, nameField, ageField, phoneField, emailField, addressField;
-    private JButton addButton, updateButton, removeButton,backButton;
+    private JButton addButton, updateButton, removeButton;
+    private JTable patientTable;
+    private DefaultTableModel tableModel;
 
     public PatientManagementUI() {
         setTitle("Patient Management");
-        setSize(400, 300);
+        setSize(600, 400);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new GridLayout(7, 2, 5, 5));
+        setLayout(new BorderLayout(10, 10));
 
-        // Labels and Text Fields
-        add(new JLabel("ID:"));
+        // Table to display patient details
+        String[] columnNames = {"ID", "Name", "Age", "Phone", "Email", "Address"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        patientTable = new JTable(tableModel);
+        JScrollPane tableScrollPane = new JScrollPane(patientTable);
+        add(tableScrollPane, BorderLayout.CENTER);
+
+        // Panel for input fields and buttons
+        JPanel inputPanel = new JPanel(new GridLayout(7, 2, 5, 5));
+        inputPanel.add(new JLabel("ID:"));
         idField = new JTextField();
-        add(idField);
+        inputPanel.add(idField);
 
-        add(new JLabel("Name:"));
+        inputPanel.add(new JLabel("Name:"));
         nameField = new JTextField();
-        add(nameField);
+        inputPanel.add(nameField);
 
-        add(new JLabel("Age:"));
+        inputPanel.add(new JLabel("Age:"));
         ageField = new JTextField();
-        add(ageField);
+        inputPanel.add(ageField);
 
-        add(new JLabel("Phone:"));
+        inputPanel.add(new JLabel("Phone:"));
         phoneField = new JTextField();
-        add(phoneField);
+        inputPanel.add(phoneField);
 
-        add(new JLabel("Email:"));
+        inputPanel.add(new JLabel("Email:"));
         emailField = new JTextField();
-        add(emailField);
+        inputPanel.add(emailField);
 
-        add(new JLabel("Address:"));
+        inputPanel.add(new JLabel("Address:"));
         addressField = new JTextField();
-        add(addressField);
+        inputPanel.add(addressField);
 
-        // Buttons
+        // Add buttons
         addButton = new JButton("Add");
         updateButton = new JButton("Update");
         removeButton = new JButton("Remove");
 
-        add(addButton);
-        add(updateButton);
-        add(removeButton);
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(addButton);
+        buttonPanel.add(updateButton);
+        buttonPanel.add(removeButton);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        add(inputPanel, BorderLayout.NORTH);
 
         // Button Listeners
         addButton.addActionListener(new ActionListener() {
@@ -74,13 +90,31 @@ public class PatientManagementUI extends JFrame {
             }
         });
 
-        setVisible(true);
-        backButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+        // Load initial patient data
+        loadPatients();
 
-            }
-        });
+        setVisible(true);
+    }
+
+    // Method to load patient data into the table
+    private void loadPatients() {
+        // Clear the existing rows
+        tableModel.setRowCount(0);
+
+        // Get the list of patients from the database
+        List<Patient> patients = PatientDAO.getAllPatients();
+
+        // Add each patient to the table
+        for (Patient patient : patients) {
+            tableModel.addRow(new Object[]{
+                    patient.getId(),
+                    patient.getName(),
+                    patient.getAge(),
+                    patient.getPhone(),
+                    patient.getEmail(),
+                    patient.getAddress()
+            });
+        }
     }
 
     private void addPatient() {
@@ -99,6 +133,7 @@ public class PatientManagementUI extends JFrame {
 
         if (success) {
             JOptionPane.showMessageDialog(this, "Patient Added!");
+            loadPatients();  // Reload the patient list after adding
         } else {
             JOptionPane.showMessageDialog(this, "Error adding patient!");
         }
@@ -120,6 +155,7 @@ public class PatientManagementUI extends JFrame {
 
         if (success) {
             JOptionPane.showMessageDialog(this, "Patient Updated!");
+            loadPatients();  // Reload the patient list after updating
         } else {
             JOptionPane.showMessageDialog(this, "Error updating patient!");
         }
@@ -133,6 +169,7 @@ public class PatientManagementUI extends JFrame {
 
         if (success) {
             JOptionPane.showMessageDialog(this, "Patient Removed!");
+            loadPatients();  // Reload the patient list after removing
         } else {
             JOptionPane.showMessageDialog(this, "Error removing patient!");
         }
