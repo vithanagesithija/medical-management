@@ -166,6 +166,7 @@ public class DoctorScheduleManager extends JFrame {
         if (!id.isEmpty() && !name.isEmpty() && !specialization.isEmpty() && !phone.isEmpty() && !email.isEmpty()) {
             Doctor doctor = new Doctor(id, name, specialization, phone, email);
             insertDoctorIntoDatabase(doctor);
+            sendWelcomeEmail(doctor);  // Send email after adding the doctor
             clearForm();
         } else {
             JOptionPane.showMessageDialog(this, "All fields are required.", "Input Error", JOptionPane.WARNING_MESSAGE);
@@ -186,6 +187,16 @@ public class DoctorScheduleManager extends JFrame {
         } catch (SQLException e) {
             JOptionPane.showMessageDialog(this, "Error inserting doctor: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void sendWelcomeEmail(Doctor doctor) {
+        String subject = "Welcome to MediCare Plus!";
+        String body = "Hello Dr. " + doctor.getName() + ",\n\n" +
+                "Welcome to MediCare Plus! We're excited to have you join our team. If you have any questions, feel free to reach out to us.\n\n" +
+                "Thank you,\nMediCare Plus Team";
+
+        // Send the welcome email using the EmailSender class
+        EmailSender.sendEmail(doctor.getEmail(), subject, body);
     }
 
     private void updateDoctor() {

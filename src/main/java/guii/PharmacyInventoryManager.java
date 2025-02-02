@@ -1,7 +1,6 @@
 package guii;
 
 import code.DatabaseConnection;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -135,6 +134,10 @@ public class PharmacyInventoryManager extends JFrame {
             int rowsInserted = stmt.executeUpdate();
             if (rowsInserted > 0) {
                 JOptionPane.showMessageDialog(this, "Item Added Successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+                // Send an email to the owner after adding the item
+                sendEmailToOwner(name, quantity, price);
+
                 clearFields();
             }
         } catch (SQLException ex) {
@@ -194,6 +197,20 @@ public class PharmacyInventoryManager extends JFrame {
         } catch (SQLException ex) {
             JOptionPane.showMessageDialog(this, "Error: " + ex.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    // Method to send email notification to the owner using the EmailSender class
+    private void sendEmailToOwner(String itemName, int quantity, double price) {
+        String recipientEmail = "owner@example.com";  // Owner's email address
+        String subject = "New Item Added to Pharmacy Inventory";
+        String body = String.format("A new item has been added to the pharmacy inventory:\n\n"
+                + "Item Name: %s\n"
+                + "Quantity: %d\n"
+                + "Price: %.2f\n\n"
+                + "Please review the inventory update.", itemName, quantity, price);
+
+        // Call the EmailSender's sendEmail method
+        EmailSender.sendEmail(recipientEmail, subject, body);
     }
 
     // Clear Input Fields

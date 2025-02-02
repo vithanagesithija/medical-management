@@ -137,6 +137,24 @@ public class AppointmentManager extends JFrame {
         if (doesDoctorExist(doctorId) && doesPatientExist(patientId)) {
             Appointment appointment = new Appointment(appointmentId, patientId, doctorId, date, time);
             insertAppointmentIntoDatabase(appointment);
+
+            // Fetch patient and doctor emails
+            String patientEmail = getPatientEmail(patientId);
+            String doctorEmail = getDoctorEmail(doctorId);
+
+            // Send emails
+            if (patientEmail != null) {
+                String patientSubject = "Appointment Confirmation";
+                String patientBody = "Dear Patient,\n\nYour appointment is scheduled on " + date + " at " + time + ".\n\nThank you.";
+                EmailSender.sendEmail(patientEmail, patientSubject, patientBody);
+            }
+
+            if (doctorEmail != null) {
+                String doctorSubject = "New Appointment Scheduled";
+                String doctorBody = "Dear Doctor,\n\nYou have a new appointment scheduled on " + date + " at " + time + " with Patient ID: " + patientId + ".\n\nThank you.";
+                EmailSender.sendEmail(doctorEmail, doctorSubject, doctorBody);
+            }
+
             clearForm();
         } else {
             JOptionPane.showMessageDialog(this, "Doctor or Patient does not exist.", "Error", JOptionPane.ERROR_MESSAGE);
@@ -241,6 +259,40 @@ public class AppointmentManager extends JFrame {
         doctorIdField.setText("");
         appointmentDateField.setText("");
         appointmentTimeField.setText("");
+    }
+
+    private String getPatientEmail(String patientId) {
+        String email = null;
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            String query = "SELECT email FROM patients WHERE id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, patientId);
+                ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    email = resultSet.getString("email");
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error fetching patient email: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return email;
+    }
+
+    private String getDoctorEmail(String doctorId) {
+        String email = null;
+        try (Connection connection = DatabaseConnection.getConnection()) {
+            String query = "SELECT email FROM doctors WHERE id = ?";
+            try (PreparedStatement statement = connection.prepareStatement(query)) {
+                statement.setString(1, doctorId);
+                ResultSet resultSet = statement.executeQuery();
+                if (resultSet.next()) {
+                    email = resultSet.getString("email");
+                }
+            }
+        } catch (SQLException e) {
+            JOptionPane.showMessageDialog(this, "Error fetching doctor email: " + e.getMessage(), "Database Error", JOptionPane.ERROR_MESSAGE);
+        }
+        return email;
     }
 
     public static void main(String[] args) {

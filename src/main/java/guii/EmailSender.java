@@ -1,14 +1,15 @@
 package guii;
+
 import javax.mail.*;
 import javax.mail.internet.*;
 import java.util.Properties;
 
 public class EmailSender {
-    public static void main(String[] args) {
+    public static void sendEmail(String recipientEmail, String subject, String body) {
         // SMTP Server Information
         String host = "smtp.gmail.com";  // Change if using another SMTP provider
-        String port = "465"; // Use "465" for SSL
-        final String username = "sithijasulank789@gmail.com";
+        String port = "587"; // Use "465" for SSL
+        final String username = "sithijasulank789@gmail.com"; // Your Gmail username
         final String password = "qcom resh mjyp rhgv"; // Use an App Password if using Gmail
 
         // SMTP Server Properties
@@ -29,17 +30,17 @@ public class EmailSender {
             // Create email message
             Message message = new MimeMessage(session);
             message.setFrom(new InternetAddress(username));
-            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse("recipient@example.com"));
-            message.setSubject("Test Email from Java");
-            message.setText("Hello, this is a test email sent using JavaMail API 1.6.2!");
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(recipientEmail));
+            message.setSubject(subject);
+            message.setText(body);
 
             // Send the email
             Transport.send(message);
-            System.out.println("Email sent successfully!");
+            System.out.println("Email sent successfully to " + recipientEmail);
 
         } catch (MessagingException e) {
             e.printStackTrace();
+            System.out.println("Failed to send email.");
         }
     }
 }
-

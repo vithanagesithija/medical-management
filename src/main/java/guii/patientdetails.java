@@ -2,7 +2,6 @@ package guii;
 
 import code.Patient;
 import code.PatientDAO;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -105,10 +104,23 @@ public class patientdetails extends JFrame {
     }
 
     private void addPatient() {
+        // Create the Patient object with data from fields
         Patient patient = new Patient(idField.getText(), nameField.getText(), Integer.parseInt(ageField.getText()),
                 phoneField.getText(), emailField.getText(), addressField.getText());
+
+        // Add the patient to the database (PatientDAO logic)
         if (PatientDAO.addPatient(patient)) {
             JOptionPane.showMessageDialog(this, "Patient added successfully!");
+
+            // After adding the patient, send a welcome email
+            String patientEmail = emailField.getText(); // Get the patient's email
+            String subject = "Welcome to MediCare House!";
+            String body = "Hello " + nameField.getText() + ",\n\n" +
+                    "Welcome to MediCare Plus! We're happy to have you on board. If you have any questions, feel free to contact us.\n\n" +
+                    "Thank you,\nMediCare Plus Team";
+
+            // Call the EmailSender to send the email
+            EmailSender.sendEmail(patientEmail, subject, body); // You can create a static method to handle this
         } else {
             JOptionPane.showMessageDialog(this, "Failed to add patient.", "Error", JOptionPane.ERROR_MESSAGE);
         }
